@@ -5,8 +5,8 @@ function handleViewButton(){
     //const note = document.querySelector('#note').value;
 
     //where our server resides 
-    const url = "http://localhost:3000";
-    const params = `?user_name=${userName}`;
+    const url = "http://localhost:3500/users";
+    const params = `?username=${userName}`;
     //10:00 he talks about this
     const fetchObject = {
         method: 'GET',
