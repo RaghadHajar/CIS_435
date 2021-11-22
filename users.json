@@ -1,0 +1,10 @@
+{"users":[
+    {
+        "username": "Bob",
+        "note": "I'm Bob and I like cereal"
+    },
+    {
+        "username": "Evilbob",
+        "note": "I'm Evilbob and I hate cereal"
+    }
+]}
