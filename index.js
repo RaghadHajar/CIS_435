@@ -24,16 +24,28 @@ app.use(express.json());
 
 const users = [
     {
-        id: 1,
-        username: 'Bob',
-        note: "I'm Bob and I like cereal"
+        "id": 0,
+        "username": 'N/A',
+        "note": "User does not exist"
     },
     {
-        id: 2,
-        username: "Evilbob",
-        note: "I'm Evilbob and I hate cereal"
+        "id": 1,
+        "username": 'Bob',
+        "note": "I'm Bob and I like cereal"
+    },
+    {
+        "id": 2,
+        "username": "Evilbob",
+        "note": "I'm Evilbob and I hate cereal"
     }
 ];
+
+// const users = '{ "user" : [' +
+// '{ "id":1 , "username":"Bob", "note": "I am Bob and I like cereal" },' +
+// '{ "id":2 , "username":"Evilbob", "note": "I am Evilbob and I hate cereal"  },' +
+// ' ]}';
+
+
 
 app.get('/', (req, res) => {
     console.log('\n\nON THE SERVER');
@@ -49,6 +61,7 @@ app.get('/users', (req, res) => {
 });
 
 //return given user
+
 app.get('/users/:username', (req, res) => {
     console.log('\n\nON THE SERVER');
     //console.log('received from client: ' + req.query.first_name + ' ' + req.query.last_name);
@@ -57,7 +70,17 @@ app.get('/users/:username', (req, res) => {
     //have to figure out this part
     const user_name = users.find(c => c.username === req.params.username);
     if(!user_name) res.status(404).send("user does not exist");
-    res.send(JSON.stringify(user_name));
+    res.send(user_name);
+    });
+
+app.post('/users', (req, res) => {
+        const user = {
+            id: users.length + 1,
+            username: req.body.name,
+            note: req.body.note
+        };
+        users.push(user);
+        res.send(user);
     });
 
 app.listen(portNum, () => {
