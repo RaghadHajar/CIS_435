@@ -74,9 +74,10 @@ app.get('/users/:username', (req, res) => {
     });
 
 app.post('/users', (req, res) => {
+    console.log('received from client: ' + req.query.username + ' ' + req.body.note);
         const user = {
             id: users.length + 1,
-            username: req.body.name,
+            username: req.body.username,
             note: req.body.note
         };
         users.push(user);
