@@ -64,12 +64,12 @@ app.get('/users', (req, res) => {
 
 app.get('/users/:username', (req, res) => {
     console.log('\n\nON THE SERVER');
-    //console.log('received from client: ' + req.query.first_name + ' ' + req.query.last_name);
+    console.log('received from client: ' + req.query.first_name);
 
     console.log('sending response to the client from / ...');
     //have to figure out this part
     const user_name = users.find(c => c.username === req.params.username);
-    if(!user_name) res.status(404).send("user does not exist");
+    if(!user_name) res.status(404).send(users[0]);
     res.send(user_name);
     });
 
