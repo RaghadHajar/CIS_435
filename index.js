@@ -99,12 +99,25 @@ app.get('/users/:username', (req, res) => {
     });
 
 app.post('/users', (req, res) => {
+
+    //Get the users that we know exist
     fileUsers= JSON.parse(fs.readFileSync('users.json', 'utf8'));
     console.log('received from client: ' + req.query.username + ' ' + req.body.note);
     
+    //everything that a user holds
         const user = {
             id: fileUsers.users.length + 1,
             username: req.body.username,
+            note: req.body.note
+        };
+
+        //newNots and newNOtes.notes will be used to create our new JSON file
+        //note contains all the data that a note will hold, an id and the content
+        //don't forget to change id of note if it is being appended
+        var newNotes = {};
+        newNotes.notes = [];
+        const note = {
+            id: 0,
             note: req.body.note
         };
 
@@ -112,20 +125,38 @@ app.post('/users', (req, res) => {
         // res.send(user);        
         let userFound = false; 
 
+        //loop through our list of users and if the user we are looking for exists 
+        //set user found to true
+        //store the data from that users file into fileNotes
+        //set the note id to += 1 of the number of notes
+        //push our new note onto fileNotes
+        //finally write fileNotes to our users json file
+        //break out of for loop so we don't check every user if we don't have to
         for(let i = 0; i < fileUsers.users.length; i++)
         {
             //if user is found append file
-            if(fileUsers.users[i].username === req.params.username){
+            if(fileUsers.users[i].username === req.body.username){
                 console.log("user found append note");
                 userFound = true;
+                let fileNotes = JSON.parse(fs.readFileSync(user.username + ".json", 'utf8'));
+                //fs.writeFileSync("users.json", JSON.stringify(fileUsers));
+                note.id = fileNotes.notes.length + 1;
+                fileNotes.notes.push(note);
+                fs.writeFileSync(user.username + ".json", JSON.stringify(fileNotes));
                 break;
             }
         }
         //if user not found create new file and add to users.json
+        //push user onto fileUsers
+        //write our new user to list of current users
+        //create the array of notes and add our note
+        //write that array of notes to our json file
         if(!userFound){
             console.log("User not found adding user");
             fileUsers.users.push(user);
             fs.writeFileSync("users.json", JSON.stringify(fileUsers));
+            newNotes.notes.push(note);
+            fs.writeFileSync(user.username + ".json", JSON.stringify(newNotes));
         }
 
         res.send(fileUsers);
