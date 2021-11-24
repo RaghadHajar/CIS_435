@@ -15,6 +15,7 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
+const fs = require('fs');
 
 const portNum = 3500;
 
@@ -45,7 +46,13 @@ const users = [
 // '{ "id":2 , "username":"Evilbob", "note": "I am Evilbob and I hate cereal"  },' +
 // ' ]}';
 
-
+console.log("lets try reading a file\n");
+fileUsers= JSON.parse(fs.readFileSync('users.json', 'utf8'));
+console.log(fileUsers);
+// console.log('\n JSON at 0 \n');
+// console.log(fileUsers.users[0].note);
+// console.log('\n JSON at 1 \n');
+// console.log(fileUsers.users[1].note);
 
 app.get('/', (req, res) => {
     console.log('\n\nON THE SERVER');
@@ -57,7 +64,7 @@ app.get('/', (req, res) => {
 
 //return all users
 app.get('/users', (req, res) => {
-    res.send(users);
+    res.send(fileUsers);
 });
 
 //return given user
@@ -68,18 +75,30 @@ app.get('/users/:username', (req, res) => {
 
     console.log('sending response to the client from / ...');
     //have to figure out this part
-    const user_name = users.find(c => c.username === req.params.username);
-    if(!user_name) res.status(404).send(users[0]);
-    res.send(user_name);
+    // const user_name = users.find(c => c.username === req.params.username);
+    // if(!user_name) res.status(404).send(users[0]);
+    // res.send(user_name);
+
+    for(let i = 0; i < fileUsers.users.length; i++)
+    {
+            if(fileUsers.users[i].username === req.params.username){
+                res.send(JSON.stringify(fileUsers.users[i]));
+            }
+            else {
+                res.send("User does not exist");
+            }
+    }
     });
 
 app.post('/users', (req, res) => {
     console.log('received from client: ' + req.query.username + ' ' + req.body.note);
+    
         const user = {
             id: users.length + 1,
             username: req.body.username,
             note: req.body.note
         };
+
         users.push(user);
         res.send(user);
     });
