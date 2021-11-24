@@ -23,23 +23,23 @@ app.use(cors({origin: '*'}));
 
 app.use(express.json());
 
-const users = [
-    {
-        "id": 0,
-        "username": 'N/A',
-        "note": "User does not exist"
-    },
-    {
-        "id": 1,
-        "username": 'Bob',
-        "note": "I'm Bob and I like cereal"
-    },
-    {
-        "id": 2,
-        "username": "Evilbob",
-        "note": "I'm Evilbob and I hate cereal"
-    }
-];
+// const users = [
+//     {
+//         "id": 0,
+//         "username": 'N/A',
+//         "note": "User does not exist"
+//     },
+//     {
+//         "id": 1,
+//         "username": 'Bob',
+//         "note": "I'm Bob and I like cereal"
+//     },
+//     {
+//         "id": 2,
+//         "username": "Evilbob",
+//         "note": "I'm Evilbob and I hate cereal"
+//     }
+// ];
 
 // const users = '{ "user" : [' +
 // '{ "id":1 , "username":"Bob", "note": "I am Bob and I like cereal" },' +
@@ -47,8 +47,9 @@ const users = [
 // ' ]}';
 
 console.log("lets try reading a file\n");
-fileUsers= JSON.parse(fs.readFileSync('users.json', 'utf8'));
+let fileUsers= JSON.parse(fs.readFileSync('users.json', 'utf8'));
 console.log(fileUsers);
+console.log("length of fileUsers = " + fileUsers.users.length);
 // console.log('\n JSON at 0 \n');
 // console.log(fileUsers.users[0].note);
 // console.log('\n JSON at 1 \n');
@@ -64,43 +65,70 @@ app.get('/', (req, res) => {
 
 //return all users
 app.get('/users', (req, res) => {
+    fileUsers= JSON.parse(fs.readFileSync('users.json', 'utf8'));
     res.send(fileUsers);
 });
 
 //return given user
 
 app.get('/users/:username', (req, res) => {
+    fileUsers= JSON.parse(fs.readFileSync('users.json', 'utf8'));
     console.log('\n\nON THE SERVER');
     console.log('received from client: ' + req.query.first_name);
 
-    console.log('sending response to the client from / ...');
+    console.log('sending response to the client from /');
     //have to figure out this part
     // const user_name = users.find(c => c.username === req.params.username);
     // if(!user_name) res.status(404).send(users[0]);
     // res.send(user_name);
 
+    let userFound = false;
     for(let i = 0; i < fileUsers.users.length; i++)
     {
+        console.log("user at " + i + " = " + fileUsers.users[i].username + "\n");
             if(fileUsers.users[i].username === req.params.username){
-                res.send(JSON.stringify(fileUsers.users[i]));
-            }
-            else {
-                res.send("User does not exist");
+               userFound = true;
+               res.send(JSON.stringify(fileUsers.users[i]));
+                break;
             }
     }
+    if(!userFound){
+        res.send("User does not exist");
+    }
+
     });
 
 app.post('/users', (req, res) => {
+    fileUsers= JSON.parse(fs.readFileSync('users.json', 'utf8'));
     console.log('received from client: ' + req.query.username + ' ' + req.body.note);
     
         const user = {
-            id: users.length + 1,
+            id: fileUsers.users.length + 1,
             username: req.body.username,
             note: req.body.note
         };
 
-        users.push(user);
-        res.send(user);
+        // users.push(user);
+        // res.send(user);        
+        let userFound = false; 
+
+        for(let i = 0; i < fileUsers.users.length; i++)
+        {
+            //if user is found append file
+            if(fileUsers.users[i].username === req.params.username){
+                console.log("user found append note");
+                userFound = true;
+                break;
+            }
+        }
+        //if user not found create new file and add to users.json
+        if(!userFound){
+            console.log("User not found adding user");
+            fileUsers.users.push(user);
+            fs.writeFileSync("users.json", JSON.stringify(fileUsers));
+        }
+
+        res.send(fileUsers);
     });
 
 app.listen(portNum, () => {

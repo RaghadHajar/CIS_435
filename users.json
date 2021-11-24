@@ -1,10 +1,1 @@
-{"users":[
-    {
-        "username": "Bob",
-        "note": "I'm Bob and I like cereal"
-    },
-    {
-        "username": "Evilbob",
-        "note": "I'm Evilbob and I hate cereal"
-    }
-]}
+{"users":[{"username":"Bob","note":"I'm Bob and I like cereal"},{"username":"Evilbob","note":"I'm Evilbob and I hate cereal"},{"id":3,"username":"Jason","note":"Jason is great"}]}
