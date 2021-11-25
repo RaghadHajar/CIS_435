@@ -23,33 +23,14 @@ app.use(cors({origin: '*'}));
 
 app.use(express.json());
 
-// const users = [
-//     {
-//         "id": 0,
-//         "username": 'N/A',
-//         "note": "User does not exist"
-//     },
-//     {
-//         "id": 1,
-//         "username": 'Bob',
-//         "note": "I'm Bob and I like cereal"
-//     },
-//     {
-//         "id": 2,
-//         "username": "Evilbob",
-//         "note": "I'm Evilbob and I hate cereal"
-//     }
-// ];
-
-// const users = '{ "user" : [' +
-// '{ "id":1 , "username":"Bob", "note": "I am Bob and I like cereal" },' +
-// '{ "id":2 , "username":"Evilbob", "note": "I am Evilbob and I hate cereal"  },' +
-// ' ]}';
-
-console.log("lets try reading a file\n");
+//this is where we read in our users.json file so we can check if users exist
+//note: idk if it's necessary but I parse the file in every method again just in case theres an update
+//maybe not the best practice but this is such a small app it doesn't matter
 let fileUsers= JSON.parse(fs.readFileSync('users.json', 'utf8'));
+//I send it to the console so I can verify what I get
 console.log(fileUsers);
-console.log("length of fileUsers = " + fileUsers.users.length);
+
+//console.log("length of fileUsers = " + fileUsers.users.length);
 // console.log('\n JSON at 0 \n');
 // console.log(fileUsers.users[0].note);
 // console.log('\n JSON at 1 \n');
@@ -70,19 +51,22 @@ app.get('/users', (req, res) => {
 });
 
 //return given user
-
 app.get('/users/:username', (req, res) => {
+    //parse the our users.json again in case of changes and store it back to fileUsers
     fileUsers= JSON.parse(fs.readFileSync('users.json', 'utf8'));
+    //lets us know what we're getting
     console.log('\n\nON THE SERVER');
     console.log('received from client: ' + req.query.first_name);
-
     console.log('sending response to the client from /');
-    //have to figure out this part
-    // const user_name = users.find(c => c.username === req.params.username);
-    // if(!user_name) res.status(404).send(users[0]);
-    // res.send(user_name);
 
+    //userFound bool so we know if we found a matching user
     let userFound = false;
+    //go through the entire users array from our file users and check if we find a match
+    //if we do find a match:
+    //set userFond to true, create a text variable to read the contents of the txt file associated with the user
+    //this will be the username we're given + ".txt" "jason.txt" for example
+    //then simply convert the text to a JSON string as a note object
+    //break out of the loop so we don't check everything if we found what we're looking for
     for(let i = 0; i < fileUsers.users.length; i++)
     {
         //console.log("user at " + i + " = " + fileUsers.users[i].username + "\n");
@@ -94,6 +78,7 @@ app.get('/users/:username', (req, res) => {
                 break;
             }
     }
+    //if after loop we don't find a match send a note object saying the user doesn't exist
     if(!userFound){
         res.send(JSON.stringify({note: "User does not exist"}));
     }
@@ -107,12 +92,14 @@ app.post('/users', (req, res) => {
     console.log('received from client: ' + req.query.username + ' ' + req.body.note);
     
     //everything that a user holds
+    //used to create a new user in fileUsers
         const user = {
             id: fileUsers.users.length + 1,
             username: req.body.username,
             //note: req.body.note
         };
 
+        //this was used for multiple notes solution
         //newNots and newNOtes.notes will be used to create our new JSON file
         //note contains all the data that a note will hold, an id and the content
         //don't forget to change id of note if it is being appended
@@ -122,7 +109,8 @@ app.post('/users', (req, res) => {
         //     id: 0,
         //     note: req.body.note
         // };
-      
+        
+        //bool to tell if a user is found
         let userFound = false; 
 
         //My cool solution, If we wanted to have multiple notes per user
@@ -161,6 +149,14 @@ app.post('/users', (req, res) => {
         // }
 
         //Our easier solution, one note per user
+
+        //loop through the entire users file 
+        //if we find the user we're looking for:
+        //set userFound to true
+        //set a variable text = to the contents of the txt file associated with the user we're looking for
+        //append the new note to text
+        //write our text variable to the associated txt file
+        //hint: in order to get the txt file we want it will be titled (username.txt), so we just use the username we're given and add .txt to the end when telling it what to look for
         for(let i = 0; i < fileUsers.users.length; i++)
         {
             //if user is found append file
@@ -173,15 +169,25 @@ app.post('/users', (req, res) => {
                 break;
             }
         }
+        //if the user is not found
+        //push our new user object to our fileUsers
+        //write our fileUsers to the users.JSON file
+        //hint: everytime you call write it overrides what was there before this is why we have to add things
+        //to a variable holding the current contents and send that variable 
+        //next we write to a file called the username we recieve.txt 
+        //hint: if that file doesn't exist it will automatically be created
         if(!userFound){
             console.log("User not found adding user");
             fileUsers.users.push(user);
             fs.writeFileSync("users.json", JSON.stringify(fileUsers));
             fs.writeFileSync(user.username + ".txt", req.body.note);
         }
+        //now we send fileUsers
+        //idk I think we just have to send something this might be wrong 
         res.send(fileUsers);
     });
 
+//this just tells the backend to listen for the front end to speak up
 app.listen(portNum, () => {
     console.log(`listening on port ${portNum}`);
 });
