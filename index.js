@@ -96,7 +96,7 @@ app.post('/users', (req, res) => {
         const user = {
             id: fileUsers.users.length + 1,
             username: req.body.username,
-            //note: req.body.note
+            note: req.body.note
         };
 
         //this was used for multiple notes solution
@@ -157,6 +157,9 @@ app.post('/users', (req, res) => {
         //append the new note to text
         //write our text variable to the associated txt file
         //hint: in order to get the txt file we want it will be titled (username.txt), so we just use the username we're given and add .txt to the end when telling it what to look for
+        //Next we also want to keep track of what the users note is in our users.json file 
+        //(just in case that is useful later)
+        //so we set the current fileUsers.users objects note to our text variable and write fileUsers to users.JSON
         for(let i = 0; i < fileUsers.users.length; i++)
         {
             //if user is found append file
@@ -166,6 +169,9 @@ app.post('/users', (req, res) => {
                 let text = fs.readFileSync(user.username + ".txt", "utf-8");
                 text = text + " " + req.body.note;
                 fs.writeFileSync(user.username + ".txt", text);
+
+                fileUsers.users[i].note = text;
+                fs.writeFileSync("users.json", JSON.stringify(fileUsers));
                 break;
             }
         }
@@ -187,6 +193,38 @@ app.post('/users', (req, res) => {
         res.send(fileUsers);
     });
 
+
+app.delete('/users', (req, res) => {
+    fileUsers= JSON.parse(fs.readFileSync('users.json', 'utf8'));
+
+    const user = {
+        username: req.body.username
+    }
+    console.log(user.username);
+    let userFound = false;
+    //search trough all file users 
+    //if found set a text variable to "" write "" to the associated .txt file
+    //set the users note in the users.json file to ""
+    for(let i = 0; i < fileUsers.users.length; i++)
+        {
+            //if user is found append file
+            if(fileUsers.users[i].username === req.body.username){
+                console.log("user found delete note");
+                userFound = true;
+                let text = " ";
+                fs.writeFileSync(user.username + ".txt", text);
+                fileUsers.users[i].note = text;
+                fs.writeFileSync("users.json", JSON.stringify(fileUsers));
+                res.send(JSON.stringify({note: text}));
+                break;
+            }
+        }
+        //if not found return not found
+        if(!userFound){
+            res.send(JSON.stringify({note: "User does not exist"}));
+        }
+        
+});    
 //this just tells the backend to listen for the front end to speak up
 app.listen(portNum, () => {
     console.log(`listening on port ${portNum}`);
