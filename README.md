@@ -1,2 +1,5 @@
 # CIS_435
- //hi
+Authors: 
+Raghad Hajar 
+Emliy Cloke
+Jason Bean
