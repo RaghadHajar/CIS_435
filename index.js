@@ -193,7 +193,6 @@ app.post('/users', (req, res) => {
         res.send(fileUsers);
     });
 
-
 app.delete('/users', (req, res) => {
     fileUsers= JSON.parse(fs.readFileSync('users.json', 'utf8'));
 
@@ -225,6 +224,38 @@ app.delete('/users', (req, res) => {
         }
         
 });    
+
+app.put('/users', (req, res) => {
+    //Get the users that we know exist
+    fileUsers= JSON.parse(fs.readFileSync('users.json', 'utf8'));
+    console.log('received from client: ' + req.query.username + ' ' + req.body.note);
+    
+    //everything that a user holds
+    //used to create a new user in fileUsers
+        const user = {
+            username: req.body.username,
+            note: req.body.note
+        };
+
+        let userFound = false; 
+        for(let i = 0; i < fileUsers.users.length; i++)
+        {
+            //if user is found append file
+            if(fileUsers.users[i].username === req.body.username){
+                userFound = true;
+                let text = user.note;
+                fs.writeFileSync(user.username + ".txt", text);
+                fileUsers.users[i].note = text;
+                fs.writeFileSync("users.json", JSON.stringify(fileUsers));
+                break;
+            }
+        }
+        if(!userFound){
+            res.send(JSON.stringify({note: "No note to edit"}));
+        }
+        res.send(fileUsers);
+});
+
 //this just tells the backend to listen for the front end to speak up
 app.listen(portNum, () => {
     console.log(`listening on port ${portNum}`);
